@@ -15,7 +15,7 @@ param(
     [switch]$Stacklight,
     [switch]$PublisherJson,
     [switch]$NoAutoAccept,
-    [switch]$Unsecure,
+    [switch]$Unsecure = $true,
     [string]$NodesFile,
     [string[]]$ExtraOpcPlcArgs = @()
 )
