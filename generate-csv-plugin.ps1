@@ -200,7 +200,6 @@ $code = @"
 namespace OpcPlc.PluginNodes;
 
 using Microsoft.Extensions.Logging;
-using Mono.Options;
 using Opc.Ua;
 using OpcPlc.PluginNodes.Models;
 using System;
@@ -215,7 +214,7 @@ public sealed class $ClassName(TimeService timeService, ILogger logger)
     private PlcNodeManager _plcNodeManager;
     private readonly Dictionary<string, BaseDataVariableState> _nodesByTag = new(StringComparer.OrdinalIgnoreCase);
 
-    public void AddOptions(OptionSet optionSet)
+    public void AddOptions(Mono.Options.OptionSet optionSet)
     {
         // CSV-generated tag plugin has no command-line options yet.
     }
