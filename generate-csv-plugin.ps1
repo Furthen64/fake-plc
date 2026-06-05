@@ -10,7 +10,7 @@
 # OpcPlcServer.LoadPluginNodes() because it implements IPluginNodes.
 
 param(
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $true, Position = 0)]
     [string]$CsvPath,
 
     [string]$OutputPath = 'src\PluginNodes\CsvGeneratedPluginNodes.cs',
@@ -46,11 +46,7 @@ function Escape-CSharpString([string]$value) {
 
 function Get-CellValue($row, [string]$columnName) {
     $property = $row.PSObject.Properties[$columnName]
-    if ($null -eq $property) {
-        return ''
-    }
-
-    if ($null -eq $property.Value) {
+    if ($null -eq $property -or $null -eq $property.Value) {
         return ''
     }
 
@@ -201,6 +197,7 @@ namespace OpcPlc.PluginNodes;
 
 using Microsoft.Extensions.Logging;
 using Opc.Ua;
+using OpcPlc.Helpers;
 using OpcPlc.PluginNodes.Models;
 using System;
 using System.Collections.Generic;
