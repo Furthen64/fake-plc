@@ -408,6 +408,16 @@ cp user.der ./pki/trusted-user/certs/
 docker run --rm -it -p 50000:50000 -v $(pwd)/pki:/app/pki mcr.microsoft.com/iotedge/opc-plc:latest
 ~~~
 
+Generate username/password startup arguments:
+
+~~~powershell
+.\adduser.ps1
+.\adduser.ps1 -Role admin
+.\adduser.ps1 -Username demo-user -PasswordLength 24
+~~~
+
+The helper script runs `tools/fake-plc-adduser` and prints generated credentials together with the matching `opcplc` CLI arguments (`--du/--dc` for the default user, `--au/--ac` for the admin user).
+
 Client configuration for user certificate authentication:
 
 When connecting to the OPC PLC server using certificate-based user authentication, OPC UA clients must provide both the public certificate and private key. The format depends on the client implementation:
