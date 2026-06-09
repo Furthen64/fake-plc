@@ -68,6 +68,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\opc-plc.csproj" />
+    <ProjectReference Include="..\tools\fake-plc-adduser\fake-plc-adduser.csproj" />
   </ItemGroup>
 
   <ItemGroup>
