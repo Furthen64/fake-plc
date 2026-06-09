@@ -23,6 +23,11 @@ public static class Program
             }
 
             var credential = CredentialGenerator.Generate(options.Username, options.Password, options.Admin, options.PasswordLength);
+            if (!string.IsNullOrWhiteSpace(options.StorePath))
+            {
+                PersistedUserStore.Upsert(options.StorePath, credential);
+            }
+
             if (options.Json)
             {
                 Console.WriteLine(JsonSerializer.Serialize(credential, s_jsonOptions));
@@ -33,12 +38,17 @@ public static class Program
             Console.WriteLine($"Role: {credential.Role}");
             Console.WriteLine($"Username: {credential.Username}");
             Console.WriteLine($"Password: {credential.Password}");
+            if (!string.IsNullOrWhiteSpace(options.StorePath))
+            {
+                Console.WriteLine($"Store: {options.StorePath}");
+            }
             Console.WriteLine();
-            Console.WriteLine("opc-plc arguments:");
-            Console.WriteLine($"  {credential.ToCliArgumentString()}");
-            Console.WriteLine();
-            Console.WriteLine("Example:");
-            Console.WriteLine($"  dotnet ./src/bin/Debug/net10.0/opcplc.dll {credential.ToCliArgumentString()}");
+            Console.WriteLine("Status:");
+            Console.WriteLine("  Persisted user saved successfully.");
+            if (!string.IsNullOrWhiteSpace(options.StorePath))
+            {
+                Console.WriteLine("  .\\winlaunch.ps1 will load this store automatically.");
+            }
             return 0;
         }
         catch (Exception ex)
@@ -104,7 +114,7 @@ public readonly record struct GeneratedCredential(
     }
 }
 
-internal sealed record CliOptions(string? Username, string? Password, bool Admin, int PasswordLength, bool Json, bool ShowHelp)
+internal sealed record CliOptions(string? Username, string? Password, bool Admin, int PasswordLength, bool Json, bool ShowHelp, string? StorePath)
 {
     public static CliOptions Parse(string[] args)
     {
@@ -114,6 +124,7 @@ internal sealed record CliOptions(string? Username, string? Password, bool Admin
         var passwordLength = 20;
         var json = false;
         var showHelp = false;
+        string? storePath = null;
 
         foreach (var arg in args)
         {
@@ -164,10 +175,16 @@ internal sealed record CliOptions(string? Username, string? Password, bool Admin
                 continue;
             }
 
+            if (arg.StartsWith("--store=", StringComparison.OrdinalIgnoreCase))
+            {
+                storePath = arg["--store=".Length..];
+                continue;
+            }
+
             throw new ArgumentException($"Unknown argument '{arg}'.", nameof(args));
         }
 
-        return new CliOptions(username, password, admin, passwordLength, json, showHelp);
+        return new CliOptions(username, password, admin, passwordLength, json, showHelp, storePath);
     }
 
     public static void WriteHelp()
@@ -181,6 +198,7 @@ internal sealed record CliOptions(string? Username, string? Password, bool Admin
         Console.WriteLine("  --admin                   Generate admin credentials.");
         Console.WriteLine("  --role=default|admin      Select credential role.");
         Console.WriteLine("  --password-length=<n>     Generated password length, minimum 12. Default: 20.");
+        Console.WriteLine("  --store=<path>            Save credentials to a persisted user store.");
         Console.WriteLine("  --json                    Emit JSON output.");
         Console.WriteLine("  --help                    Show help.");
     }

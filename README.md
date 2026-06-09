@@ -408,16 +408,17 @@ cp user.der ./pki/trusted-user/certs/
 docker run --rm -it -p 50000:50000 -v $(pwd)/pki:/app/pki mcr.microsoft.com/iotedge/opc-plc:latest
 ~~~
 
-Generate username/password startup arguments:
+Create persisted username/password users:
 
 ~~~powershell
 .\adduser.ps1
-.\adduser.ps1 -Role admin
-.\adduser.ps1 -Username operator1 -Password changeme
-.\adduser.ps1 -Username demo-user -PasswordLength 24
+.\adduser.ps1 operator1 changeme
+.\adduser.ps1 admin1 pass2 -Role admin
+.\adduser.ps1 demo-user -PasswordLength 24
+.\winlaunch.ps1
 ~~~
 
-Running `.\adduser.ps1` without arguments now prints usage help and examples. The helper script runs `tools/fake-plc-adduser` and prints the selected credentials together with the matching `opcplc` CLI arguments (`--du/--dc` for the default user, `--au/--ac` for the admin user). It can either accept an explicit `-Username` and `-Password` pair or generate a password when `-Password` is omitted.
+Running `.\adduser.ps1` without arguments now prints usage help and examples. The helper script stores users in `artifacts/fake-plc-users.json` by default. Passwords are persisted as salted PBKDF2 hashes together with the selected role (`default` or `admin`). `.\winlaunch.ps1` automatically passes that store to the server, so anonymous access plus any persisted default/admin users are available on the next launch. If the persisted store does not exist, the built-in `sysadmin/demo` and `user1/password` users remain available.
 
 Client configuration for user certificate authentication:
 
@@ -644,6 +645,9 @@ Options:
       --dca, --disablecertauth
                              flag to disable certificate authentication.
                                Default: False
+      --uf, --usersfile=VALUE
+                             path to a JSON file with persisted username/password
+                               users.
       --au, --adminuser=VALUE
                              the username of the admin user.
                                Default: sysadmin

@@ -205,4 +205,16 @@ public class CliOptionsTests
         // Assert
         config.OpcUa.MinimumCertificateKeySize.Should().Be(1024);
     }
+
+    [Test]
+    public void Parse_UsersFile_SetsConfigValue()
+    {
+        var config = new OpcPlcConfiguration();
+        var args = new[] { "--usersfile=artifacts/fake-plc-users.json" };
+        var pluginNodes = ImmutableList<OpcPlc.PluginNodes.Models.IPluginNodes>.Empty;
+
+        _ = CliOptions.InitConfiguration(args, config, pluginNodes);
+
+        config.UserCredentialsFile.Should().Be("artifacts/fake-plc-users.json");
+    }
 }

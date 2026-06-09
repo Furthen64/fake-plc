@@ -4,6 +4,7 @@ using FakePlc.AddUser;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
+using System.IO;
 using System.Linq;
 
 [TestFixture]
@@ -81,5 +82,52 @@ public class CredentialGeneratorTests
         const string supportedAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@$%*-_";
 
         credential.Password.All(supportedAlphabet.Contains).Should().BeTrue();
+    }
+
+    [Test]
+    public void PersistedUserStore_Upsert_WritesHashedCredential()
+    {
+        var credential = CredentialGenerator.Generate("operator1", "pass1");
+        var tempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+
+        try
+        {
+            PersistedUserStore.Upsert(tempPath, credential);
+
+            var stored = PersistedUserStore.Load(tempPath);
+
+            stored.Should().NotBeNull();
+            stored.Users.Should().ContainSingle();
+            stored.Users[0].Username.Should().Be("operator1");
+            stored.Users[0].Role.Should().Be("default");
+            stored.Users[0].PasswordHash.Should().NotBe("pass1");
+            stored.Users[0].PasswordSalt.Should().NotBeNullOrEmpty();
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
+    }
+
+    [Test]
+    public void PersistedUserStore_Upsert_ReplacesExistingUser()
+    {
+        var tempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+
+        try
+        {
+            PersistedUserStore.Upsert(tempPath, CredentialGenerator.Generate("operator1", "pass1"));
+            PersistedUserStore.Upsert(tempPath, CredentialGenerator.Generate("operator1", "pass2", admin: true));
+
+            var stored = PersistedUserStore.Load(tempPath);
+
+            stored.Should().NotBeNull();
+            stored.Users.Should().ContainSingle();
+            stored.Users[0].Role.Should().Be("admin");
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
     }
 }

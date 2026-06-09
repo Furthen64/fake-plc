@@ -1,6 +1,7 @@
 namespace OpcPlc.Configuration;
 
 using System;
+using System.Collections.Generic;
 
 public class OpcPlcConfiguration
 {
@@ -34,6 +35,16 @@ public class OpcPlcConfiguration
     /// Default user password.
     /// </summary>
     public string DefaultPassword { get; set; } = "password";
+
+    /// <summary>
+    /// Optional JSON file that contains persisted username/password users.
+    /// </summary>
+    public string UserCredentialsFile { get; set; }
+
+    /// <summary>
+    /// Persisted username/password users loaded from <see cref="UserCredentialsFile"/>.
+    /// </summary>
+    public List<PersistedUserCredential> PersistedUsers { get; set; } = [];
 
     /// <summary>
     /// Gets or sets OTLP reporting endpoint URI.

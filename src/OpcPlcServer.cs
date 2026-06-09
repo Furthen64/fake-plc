@@ -105,6 +105,8 @@ public partial class OpcPlcServer
                 LogUsageHelp(CliOptions.GetUsageHelp(Config.ProgramName));
             }
 
+            Config.PersistedUsers = PersistedUserCredentialStore.Load(Config.UserCredentialsFile);
+
             LogLogo();
 
             ThreadPool.SetMinThreads(DefaultMinThreads, DefaultCompletionPortThreads);

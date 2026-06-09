@@ -84,6 +84,43 @@ public class UserAuthenticationTests
     }
 
     [Test]
+    public void SessionManager_ImpersonateUser_ReturnsRegularIdentity_ForPersistedDefaultUser()
+    {
+        using var testContext = new TestServerContext();
+        testContext.Config.PersistedUsers.Add(PersistedUserCredentialStore.Create("oper1", "pass1", PersistedUserCredentialStore.DefaultRole));
+
+        var args = CreateImpersonateEventArgs(new UserNameIdentityToken
+        {
+            UserName = "oper1",
+            DecryptedPassword = System.Text.Encoding.UTF8.GetBytes("pass1")
+        });
+
+        InvokeImpersonateUser(testContext.Server, args);
+
+        args.Identity.Should().NotBeNull();
+        args.Identity.TokenType.Should().Be(UserTokenType.UserName);
+        args.Identity.Should().NotBeOfType<SystemConfigurationIdentity>();
+    }
+
+    [Test]
+    public void SessionManager_ImpersonateUser_ReturnsSystemConfigurationIdentity_ForPersistedAdminUser()
+    {
+        using var testContext = new TestServerContext();
+        testContext.Config.PersistedUsers.Add(PersistedUserCredentialStore.Create("admin1", "pass2", PersistedUserCredentialStore.AdminRole));
+
+        var args = CreateImpersonateEventArgs(new UserNameIdentityToken
+        {
+            UserName = "admin1",
+            DecryptedPassword = System.Text.Encoding.UTF8.GetBytes("pass2")
+        });
+
+        InvokeImpersonateUser(testContext.Server, args);
+
+        args.Identity.Should().NotBeNull();
+        args.Identity.Should().BeOfType<SystemConfigurationIdentity>();
+    }
+
+    [Test]
     public void SessionManager_ImpersonateUser_RejectsUnsupportedTokenType()
     {
         using var testContext = new TestServerContext();
