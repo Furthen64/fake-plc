@@ -1,3 +1,5 @@
+private/
+artifacts/
 /**/*.user
 /**/*.cache
 /**/*.user.json
