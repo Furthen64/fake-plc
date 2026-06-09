@@ -6,6 +6,11 @@ using System.Text.Json;
 
 public static class Program
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true
+    };
+
     public static int Main(string[] args)
     {
         try
@@ -20,10 +25,7 @@ public static class Program
             var credential = CredentialGenerator.Generate(options.Username, options.Admin, options.PasswordLength);
             if (options.Json)
             {
-                Console.WriteLine(JsonSerializer.Serialize(credential, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }));
+                Console.WriteLine(JsonSerializer.Serialize(credential, s_jsonOptions));
                 return 0;
             }
 
