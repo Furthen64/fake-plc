@@ -415,6 +415,7 @@ Generate username/password startup arguments:
 .\adduser.ps1 -Role admin
 .\adduser.ps1 -Username operator1 -Password changeme
 .\adduser.ps1 -Username demo-user -PasswordLength 24
+~~~
 
 Running `.\adduser.ps1` without arguments now prints usage help and examples. The helper script runs `tools/fake-plc-adduser` and prints the selected credentials together with the matching `opcplc` CLI arguments (`--du/--dc` for the default user, `--au/--ac` for the admin user). It can either accept an explicit `-Username` and `-Password` pair or generate a password when `-Password` is omitted.
 
