@@ -37,6 +37,7 @@ function Write-Fail($message) {
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $publishDir = Join-Path $repoRoot 'artifacts\publish\fake-plc'
 $appDll = Join-Path $publishDir 'opcplc.dll'
+$userStorePath = Join-Path $repoRoot 'artifacts\fake-plc-users.json'
 
 Write-Host "fake-plc Windows launch"
 Write-Host "Repo root: $repoRoot"
@@ -93,6 +94,14 @@ if ($Unsecure) {
 if ($NodesFile) {
     $resolvedNodesFile = Resolve-Path -LiteralPath $NodesFile -ErrorAction Stop
     $launchArgs += "--nodesfile=$resolvedNodesFile"
+}
+
+if (Test-Path $userStorePath) {
+    $resolvedUserStorePath = Resolve-Path -LiteralPath $userStorePath -ErrorAction Stop
+    $launchArgs += "--usersfile=$resolvedUserStorePath"
+    Write-Ok "Loading persisted users from $resolvedUserStorePath"
+} else {
+    Write-Warn "No persisted user store found at $userStorePath; built-in username/password users remain active."
 }
 
 if ($ExtraOpcPlcArgs.Count -gt 0) {

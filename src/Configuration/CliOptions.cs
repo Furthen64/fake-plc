@@ -222,6 +222,7 @@ public static class CliOptions
             {"daa|disableanonymousauth", $"flag to disable anonymous authentication.\nDefault: {config.DisableAnonymousAuth}", (s) => config.DisableAnonymousAuth = s != null },
             {"dua|disableusernamepasswordauth", $"flag to disable username/password authentication.\nDefault: {config.DisableUsernamePasswordAuth}", (s) => config.DisableUsernamePasswordAuth = s != null },
             {"dca|disablecertauth", $"flag to disable certificate authentication.\nDefault: {config.DisableCertAuth}", (s) => config.DisableCertAuth = s != null },
+            { "uf|usersfile=", "path to a JSON file with persisted username/password users.", (s) => config.UserCredentialsFile = s },
 
             // user management
             { "au|adminuser=", $"the username of the admin user.\nDefault: {config.AdminUser}", (s) => config.AdminUser = s ?? config.AdminUser},

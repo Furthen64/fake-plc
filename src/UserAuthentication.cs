@@ -8,6 +8,8 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Linq;
+using OpcPlc.Configuration;
 
 public partial class PlcServer
 {
@@ -60,6 +62,25 @@ public partial class PlcServer
             // an empty password is not accepted.
             throw ServiceResultException.Create(StatusCodes.BadIdentityTokenRejected,
                 "Security token is not a valid username token. An empty password is not accepted.");
+        }
+
+        var persistedUsers = Config.PersistedUsers
+            .Where(user => string.Equals(user.Username, userName, StringComparison.Ordinal))
+            .ToList();
+
+        if (persistedUsers.Count > 0)
+        {
+            var matchedPersistedUser = persistedUsers.FirstOrDefault(user => PersistedUserCredentialStore.Verify(user, password));
+            if (matchedPersistedUser is not null)
+            {
+                return string.Equals(matchedPersistedUser.Role, PersistedUserCredentialStore.AdminRole, StringComparison.Ordinal)
+                    ? new SystemConfigurationIdentity(new UserIdentity(userNameToken))
+                    : new UserIdentity(userNameToken);
+            }
+
+            throw ServiceResultException.Create(
+                StatusCodes.BadUserAccessDenied,
+                "Invalid username or password.");
         }
 
         // user with permission to configure server
