@@ -42,6 +42,23 @@ public class CredentialGeneratorTests
     }
 
     [Test]
+    public void Generate_UsesExplicitPassword_WhenProvided()
+    {
+        var credential = CredentialGenerator.Generate("custom-user", "changeme", passwordLength: 24);
+
+        credential.Username.Should().Be("custom-user");
+        credential.Password.Should().Be("changeme");
+    }
+
+    [Test]
+    public void Generate_AllowsShortExplicitPassword()
+    {
+        var credential = CredentialGenerator.Generate(password: "short");
+
+        credential.Password.Should().Be("short");
+    }
+
+    [Test]
     public void Generate_RejectsShortPasswords()
     {
         Action act = () => CredentialGenerator.Generate(passwordLength: 11);

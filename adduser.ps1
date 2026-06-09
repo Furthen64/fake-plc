@@ -5,6 +5,7 @@ param(
     [ValidateSet('default', 'admin')]
     [string]$Role = 'default',
     [string]$Username,
+    [string]$Password,
     [int]$PasswordLength = 20,
     [switch]$Json
 )
@@ -14,12 +15,13 @@ $ErrorActionPreference = 'Stop'
 function Show-AddUserHelp {
     Write-Host 'fake-plc adduser helper'
     Write-Host
-    Write-Host 'Generate fake-plc username/password startup arguments.'
-    Write-Host 'Run the script with options to generate credentials, or start fake-plc directly to set explicit credentials.'
+    Write-Host 'Create fake-plc username/password startup arguments.'
+    Write-Host 'Provide -Username and -Password to use explicit credentials, or omit -Password to generate one.'
     Write-Host
     Write-Host 'Parameters:'
-    Write-Host '  -Role <default|admin>     Credential role to generate. Default: default'
+    Write-Host '  -Role <default|admin>     Credential role to create. Default: default'
     Write-Host '  -Username <name>          Explicit username to use instead of a generated one'
+    Write-Host '  -Password <value>         Explicit password to use instead of a generated one'
     Write-Host '  -PasswordLength <n>       Generated password length. Minimum: 12. Default: 20'
     Write-Host '  -Json                     Emit JSON output'
     Write-Host
@@ -30,11 +32,11 @@ function Show-AddUserHelp {
     Write-Host '  .\adduser.ps1 -Role admin'
     Write-Host '      Generate random admin credentials and matching opcplc arguments.'
     Write-Host
-    Write-Host '  .\adduser.ps1 -Username operator1 -PasswordLength 24'
-    Write-Host '      Generate credentials for operator1 with a 24-character random password.'
+    Write-Host '  .\adduser.ps1 -Username operator1 -Password changeme'
+    Write-Host '      Create credentials for operator1 using the explicit password changeme.'
     Write-Host
-    Write-Host '  dotnet ./src/bin/Debug/net10.0/opcplc.dll --du=operator1 --dc=changemenow'
-    Write-Host '      Start fake-plc with explicit default-user credentials for operator1 / changemenow.'
+    Write-Host '  .\adduser.ps1 -Username operator1 -PasswordLength 24'
+    Write-Host '      Create credentials for operator1 with a 24-character generated password.'
 }
 
 if ($PSBoundParameters.Count -eq 0) {
@@ -65,6 +67,10 @@ $arguments += "--password-length=$PasswordLength"
 
 if ($Username) {
     $arguments += "--username=$Username"
+}
+
+if ($null -ne $Password) {
+    $arguments += "--password=$Password"
 }
 
 if ($Json) {
